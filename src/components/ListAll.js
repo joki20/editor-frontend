@@ -40,7 +40,7 @@ const createOrSaveDocument = (e) => {
         // set title to part of text
         title = text.slice(0, 10);
 
-        // set encoded POST address
+        // encoded POST address
         currentUpdateAddress = encodeURI(`https://jsramverk-editor-joki20.azurewebsites.net/create/${title}/${text}`);
 
         // set content in mongoDB to current/changed content
