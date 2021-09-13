@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import Toolbar from "./components/Toolbar";
-import SaveBtn from "./components/SaveBtn";
 import ListAll from "./components/ListAll";
 
 class App extends Component {
@@ -11,7 +10,6 @@ class App extends Component {
             <div className="App">
                 <Toolbar>
                     <ListAll />
-                    <SaveBtn />
                 </Toolbar>
                 <h2>Using CKEditor 5 build in React</h2>
                 <CKEditor
