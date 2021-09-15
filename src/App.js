@@ -39,7 +39,7 @@ function renderSelect(e) {
     document.getElementsByClassName("status")[0].innerHTML = "";
 }
 
-function createOrSave(e) {
+async function createOrSave(e) {
     e.preventDefault();
 
     // get text with <p> tags
@@ -53,35 +53,30 @@ function createOrSave(e) {
         title = text.substring(3, 15);
         
         // post as query /create?title=titel&content=text
-        axios.post(`https://jsramverk-editor-joki20.azurewebsites.net/create`, {
+        await axios.post(`https://jsramverk-editor-joki20.azurewebsites.net/create`, {
             title: title,
             content: text
         })
             .then(response => response.status)
             .catch(err => console.warn(err));
 
-        console.log("SUCCESS")
+        console.log("NEW DOCUMENT CREATED")
     
-        // set status text
-        document.getElementsByClassName("status")[0].innerHTML = "New document was created! Reload page";
-
     } else { // else UPDATE DOCUMENT
-        console.log("DOCUMENT UPDATED")
 
         // replace <option text> to current/changed content
         chosen.setAttribute("text", text);
 
-        axios.post(`https://jsramverk-editor-joki20.azurewebsites.net/update/${id}/`, {
+        await axios.post(`https://jsramverk-editor-joki20.azurewebsites.net/update/${id}/`, {
             title: title,
             content: text
         })
             .then(response => response.status)
             .catch(err => console.warn(err));
-
-        // set status text
-        document.getElementsByClassName("status")[0].innerHTML = "Document was updated! Reload page!";
-
     }
+    window.location.reload();
+
+    console.log("DOCUMENT UPDATED")
 }
 
 class App extends Component {
