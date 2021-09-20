@@ -60,7 +60,11 @@ async function createOrSave(e) {
             .then(response => response.status)
             .catch(err => console.warn(err));
 
-        console.log("NEW DOCUMENT CREATED")
+        console.log("NEW DOCUMENT CREATED");
+
+        setTimeout(function() {
+            document.location.reload()
+        }, 2000);
     
     } else { // else UPDATE DOCUMENT
 
@@ -77,6 +81,11 @@ async function createOrSave(e) {
     window.location.reload();
 
     console.log("DOCUMENT UPDATED")
+
+    setTimeout(function() {
+        document.location.reload()
+    }, 5000);
+    
 }
 
 class App extends Component {

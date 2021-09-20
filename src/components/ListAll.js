@@ -34,7 +34,7 @@ class ListAll extends React.Component {
                     ))}
                   </select>
                 <input type="hidden"></input>
-                <input type="submit" onClick={this.props.createOrSaveDocument} className="btn save"></input>
+                <input type="submit" onClick={this.props.createOrSaveDocument} className="btn save" value="Spara"></input>
             </form>
             <div className="status"></div>
         </div>
@@ -44,9 +44,3 @@ class ListAll extends React.Component {
 }
 
 export default ListAll;
-
-
-<form action="blah.php" method="post">
-  <input type="text" name="data" value="mydata" />
-  <input type="submit" />
-</form>
