@@ -1,5 +1,61 @@
 .App {
   text-align: center;
+  display: grid;
+  /* align columns at top */
+  align-items: start;
+  grid-gap: 0 20px;
+  /* row fractions */
+  grid-template-rows: 1fr 100px 4fr;
+  grid-template-columns: 300px auto;
+  /* layout */
+
+  grid-template-areas:
+    "tbar tbar"
+    ". title"
+    "list editor"
+}
+
+/* placement */
+.Toolbar {
+  grid-area: tbar;
+}
+
+.ListAll {
+  grid-area: list;
+}
+
+.Title {
+  grid-area: title;
+}
+
+.Quill {
+  grid-area: editor;
+  height: 100%;
+}
+
+/* styling */
+.Toolbar {
+  width: 100%;
+  border: 2px solid green;
+  height: 100px;
+}
+
+.BtnSave {
+  border: 2px solid yellow;
+}
+
+.ListAll {
+  border: 2px solid black;
+}
+
+.Quill {
+  border: 2px solid red;
+}
+
+ul {
+  margin: 0;
+  height: 500px;
+  text-align: left
 }
 
 .App-logo {
@@ -32,6 +88,7 @@
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }

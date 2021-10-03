@@ -1,123 +1,135 @@
-import React, { Component } from "react";
-import { CKEditor } from "@ckeditor/ckeditor5-react";
-import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+import React from "react";
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 import Toolbar from "./components/Toolbar";
-import ListAll from "./components/ListAll";
+import ListAll from "./components/ListAll.js";
+import Title from "./components/Title.js";
 import axios from 'axios'; // database requests
+import './App.css';
+import 'react-quill/dist/quill.bubble.css';
 
-// global variables
-let ck5editor;
-let selectIndex = 1; // start choice (create new)
-let chosen; // chosen <option> element, undefined if empty
-let id;
-let title;
-let text;
 
-function setEditor(editor) {
-    ck5editor = editor;
-    return ck5editor
-}
+class App extends React.Component {
+    constructor(props) {
+        super(props);
 
-function renderSelect(e) {
-    // get index of <select>
-    selectIndex = e.target.options.selectedIndex;
+        // CURRENT STATE
+        this.state = {
+            listDocuments: [],
+            currentTitle: '',
+            currentContent: '',
+            messageStatus: '',
+        };
 
-    // get chosen <select> and extract id, title and text
-    chosen = document.getElementsByTagName("option")[selectIndex];
-    id = chosen.getAttribute("name");
-    title = chosen.innerText;
-    text = chosen.getAttribute("text")
-  
-    console.log("FÖRE TEXT")
-    console.log(text);
-    console.log("EFTER TEXT");
+        // preventing componentDidUpdate to run when page loads
+        this.firstUpdate = "yes"; 
 
-    // Replace text content in ck5 to changed
-    ck5editor.setData(text);
+    }
 
-    // empty status div
-    document.getElementsByClassName("status")[0].innerHTML = "";
-}
+    getDatabase = () => {
+        axios.get(`https://jsramverk-editor-joki20.azurewebsites.net/list`)
+        .then(res => {
+            this.setState({ listDocuments: res.data.data }); //activates componentDidUpdate
+        })
+    }
 
-async function createOrSave(e) {
-    e.preventDefault();
+        // MOUNT DATABASE DATA
+        async componentDidMount() {
+            await this.getDatabase()
+        }
 
-    // get text with <p> tags
-    text = ck5editor.getData()
-
-    // if CREATE NEW was selected
-    if (selectIndex === 1) {
-        console.log("NEW DOCUMENT CREATED");
-        
-        // create title from text
-        title = text.substring(3, 15);
-        
+    postDatabase = async (titleInp) => {
         // post as query /create?title=titel&content=text
         await axios.post(`https://jsramverk-editor-joki20.azurewebsites.net/create`, {
-            title: title,
-            content: text
+            title: titleInp,
+            content: this.state.currentContent
         })
-            .then(response => response.status)
-            .catch(err => console.warn(err));
+            .then((response) => {
+                console.log(response);
+        })
+            .then((error) => {
+                console.log(error);
+            })
+        
+        this.getDatabase();
+    }
 
-        console.log("NEW DOCUMENT CREATED");
-
-        setTimeout(function() {
-            document.location.reload()
-        }, 2000);
-    
-    } else { // else UPDATE DOCUMENT
-
-        // replace <option text> to current/changed content
-        chosen.setAttribute("text", text);
-
-        await axios.post(`https://jsramverk-editor-joki20.azurewebsites.net/update/${id}/`, {
-            title: title,
-            content: text
+    updateDatabase = async (id) => {
+        console.log(id);
+        await axios.post(`https://jsramverk-editor-joki20.azurewebsites.net/update/${id}`, {
+            title: this.state.currentTitle,
+            content: this.state.currentContent
         })
             .then(response => response.status)
             .catch(err => console.warn(err));
     }
-    window.location.reload();
 
-    console.log("DOCUMENT UPDATED")
+    // SETSTATE: arrow function will prevent 'this.setState is not a function
+    getCurrentInput = (innerHTML) => {
+        this.setState({ currentContent: innerHTML });
+    }
 
-    setTimeout(function() {
-        document.location.reload()
-    }, 5000);
+    getCurrentTitle = (innerHTML) => {
+        this.setState({ currentTitle: innerHTML });
+    }
+
+    clickTitle = (e) => {
+        let clickedTitle = e.target.innerHTML; // get title from click
+        this.state.listDocuments.forEach((doc) => {
+            if (doc.title == clickedTitle) {
+                document.getElementsByClassName("titleInput")[0].value = doc.title;
+                // setState title and content
+                this.setState({ currentTitle: doc.title })
+                this.setState({ currentContent: doc.content })
+            }
+        })
+    }
+
     
-}
+    save = () => {
+        let titleExists = "no";
+        console.log("SAVING")
 
-class App extends Component {
+        // get text of title input
+        var titleInput = document.getElementsByClassName("titleInput")[0].value;
+        var id = null;
+        
+        // forEach((element) => { ... } )
+        this.state.listDocuments.forEach((doc) => {
+            // check for match, and if so do an update
+            if (doc.title == titleInput) {
+                this.setState({ messageStatus: "Title content updated" });
+                titleExists = "yes";
+                id = doc._id;
+                this.updateDatabase(id)
+            }
+        }) // stop loop
+
+        // IF TITLE DOESN'T EXIST
+        if (titleExists == "no") {
+            this.setState({ messageStatus: "New entry created" });
+            this.postDatabase(titleInput);
+        }
+    }
+
     render() {
         return (
             <div className="App">
-                <Toolbar>
-                    <ListAll
-                        editorComponent={ck5editor}
-                        renderContentAfterChoice={renderSelect}
-                        createOrSaveDocument={createOrSave}
-                    />
-                </Toolbar>
-                <h2>Using CKEditor 5 build in React</h2>
-                <CKEditor
-                    editor={ClassicEditor}
-                    id="ckeditor"
-                    data="<p>Make a choice in the menu!</p>" 
-                    onReady={(editor) => {
-                        // You can store the "editor" and use when it is needed.
-                        console.log("Editor is ready to use!", editor);
-                        setEditor(editor);
-                    }}
-                    onChange={ ( event, editor ) => {
-                        const data = editor.getData();
-                        // console.log( { data } );
-                    } }
-
+                <Toolbar
+                    saveContent={this.save}
+                    messageStatus={this.state.messageStatus}
+                />
+                <ListAll listDocs={this.state.listDocuments} clickTitle={this.clickTitle} />
+                <Title onChange={this.getCurrentTitle} />
+                <ReactQuill
+                    className="Quill"
+                    theme="snow"
+                    value={this.state.currentContent}
+                    onChange={this.getCurrentInput}
                 />
             </div>
         );
     }
 }
 
-export default App;
+export default App
