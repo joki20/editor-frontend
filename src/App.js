@@ -7,7 +7,10 @@ import Title from "./components/Title.js";
 import axios from 'axios'; // database requests
 import './App.css';
 import 'react-quill/dist/quill.bubble.css';
-
+// io is a function to call an individual socket
+import io from "socket.io-client";
+ // connects us to server, where we want package to be sent to
+const socket = io("https://jsramverk-editor-joki20.azurewebsites.net");
 
 class App extends React.Component {
     constructor(props) {
@@ -20,10 +23,10 @@ class App extends React.Component {
             currentContent: '',
             messageStatus: '',
         };
+    }
 
-        // preventing componentDidUpdate to run when page loads
-        this.firstUpdate = "yes"; 
-
+    socketUpdateContent(content) {
+        this.setState({ currentContent: content })
     }
 
     getDatabase = () => {
@@ -67,6 +70,28 @@ class App extends React.Component {
     // SETSTATE: arrow function will prevent 'this.setState is not a function
     getCurrentInput = (innerHTML) => {
         this.setState({ currentContent: innerHTML });
+
+        // get title input and look for match in order get correct id
+        var titleInput = document.getElementsByClassName("titleInput")[0].value;
+        var id = null;
+
+        this.state.listDocuments.forEach((doc) => {
+            if (doc.title === titleInput) {
+                id = doc._id;
+            }
+        })
+            
+        // emit object with id and content to backend in order to create room
+        let doc = {
+            _id: id,
+            html: this.state.currentContent
+        }
+        socket.emit("create", doc)
+
+        // received from server to all clients, containing data.html
+        socket.on("doc", (data) => {
+            this.setState({ currentContent: data.html })
+        });
     }
 
     getCurrentTitle = (innerHTML) => {
@@ -76,7 +101,7 @@ class App extends React.Component {
     clickTitle = (e) => {
         let clickedTitle = e.target.innerHTML; // get title from click
         this.state.listDocuments.forEach((doc) => {
-            if (doc.title == clickedTitle) {
+            if (doc.title === clickedTitle) {
                 document.getElementsByClassName("titleInput")[0].value = doc.title;
                 // setState title and content
                 this.setState({ currentTitle: doc.title })
@@ -97,7 +122,7 @@ class App extends React.Component {
         // forEach((element) => { ... } )
         this.state.listDocuments.forEach((doc) => {
             // check for match, and if so do an update
-            if (doc.title == titleInput) {
+            if (doc.title === titleInput) {
                 this.setState({ messageStatus: "Title content updated" });
                 titleExists = "yes";
                 id = doc._id;
@@ -106,7 +131,7 @@ class App extends React.Component {
         }) // stop loop
 
         // IF TITLE DOESN'T EXIST
-        if (titleExists == "no") {
+        if (titleExists === "no") {
             this.setState({ messageStatus: "New entry created" });
             this.postDatabase(titleInput);
         }
