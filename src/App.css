@@ -1,27 +1,54 @@
 .App {
   text-align: center;
   display: grid;
-  /* align columns at top */
-  align-items: start;
-  grid-gap: 0 20px;
+  /* stretch to full height of grid cell */
+  /* align-items: stretch; */
+  grid-gap: 10px 20px;
   /* row fractions */
-  grid-template-rows: 1fr 100px 4fr;
-  grid-template-columns: 300px auto;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 100px 120px 300px 200px;
   /* layout */
 
   grid-template-areas:
-    "tbar tbar"
-    ". title"
-    "list editor"
+    "tbar tbar tbar"
+    ". title ."
+    "listDocs editor listUsers"
+    "listDocs editor addUsers"
 }
 
 /* placement */
 .Toolbar {
   grid-area: tbar;
+  background-color: lightgreen;
+  width: 100%;
+  height: 100px;
 }
 
-.ListAll {
-  grid-area: list;
+.ListDocs {
+  grid-area: listDocs;
+  background-color: lightyellow;
+  border: 2px solid black;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+.ListUsers {
+  grid-area: listUsers;
+  background-color: lightpink;
+  border: 2px solid black;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+.AddUsers {
+  grid-area: addUsers;
+  background-color: lightgrey;
+  border: 2px solid black;
+  height: 100%;
+  padding: 0;
+  margin: 0;
 }
 
 .Title {
@@ -30,31 +57,67 @@
 
 .Quill {
   grid-area: editor;
+  border: 2px solid black;
   height: 100%;
+  padding: 0;
 }
 
-/* styling */
-.Toolbar {
-  width: 100%;
-  border: 2px solid green;
-  height: 100px;
+.AuthForm form {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
 }
 
-.BtnSave {
-  border: 2px solid yellow;
+/* Add some margins for each label */
+.AuthForm label {
+  margin: 5px 10px 5px 0;
 }
 
-.ListAll {
+/* Style the input fields */
+.AuthForm input {
+  vertical-align: middle;
+  margin: 5px 10px 5px 0;
+  padding: 10px;
+  background-color: #fff;
+  border: 2px solid black;
+  border-radius: 5px;
+}
+
+.AuthForm .login, .AuthForm .register {
+  background-color: white;
+  border-radius: 5px;
   border: 2px solid black;
 }
 
-.Quill {
-  border: 2px solid red;
+.Title {
+  text-align: center;
+}
+
+.Title input {
+  text-align: center;
+  width: 95%;
+  margin: 5px 10px 10px 0;
+  border: 2px solid black;
+  border-radius: 5px;
+  padding: 10px;
+}
+
+.Toolbar button {
+  display: block;
+  vertical-align: middle;
+  margin: 5px 10px 5px 0;
+  padding: 10px;
+  border-radius: 5px;
+  background-color: #ddd;
+  float: right;
+}
+
+li {
+  cursor: pointer;
 }
 
 ul {
   margin: 0;
-  height: 500px;
   text-align: left
 }
 

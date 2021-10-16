@@ -2,15 +2,15 @@ import React from 'react';
 
 
 // CURRENT STATE
-const ListAll = (props) => {
-  console.log(props)
+const ListDocs = (props) => {
   return (
-    <div>
-      <ul className="ListAll">
+    <div className="ListDocs">
+      <h2>Documents</h2>
+      <ul>
         {props.listDocs.map((doc) => (
           <li onClick={props.clickTitle}
-        key={doc._id}
-        name={doc._id}
+        key={doc.id}
+        name={doc.id}
       >{doc.title}</li>
       ))
       }
@@ -19,4 +19,4 @@ const ListAll = (props) => {
   )
 }
 
-  export default ListAll;
+  export default ListDocs;
