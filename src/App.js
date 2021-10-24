@@ -24,7 +24,7 @@ class App extends React.Component {
         this.state = {
             allUsers: [],
             allowedDocs: [],
-            allowedUsers: [],
+            allowedUsers: [], // array with objects
             unallowedUsers: [],
             currentTitle: '',
             currentContent: '',
@@ -40,30 +40,128 @@ class App extends React.Component {
         this.setState({ currentContent: content })
     }
 
-    getDocs = async () => {
-        console.log("getDocs was called")
-        let allUsers = []
-        let allowedDocs = [];
+
+    // fetch('/graphql', {
+    //     method: 'POST',
+    //     headers: {
+    //         'Content-Type': 'application/json',
+    //         'Accept': 'application/json',
+    //     },
+    //     body: JSON.stringify({ query: "{ courses { name } }" })
+    // })
+    //     .then(r => r.json())
+    //     .then(data => console.log('data returned:', data));
         
-        await axios.get(`${server}/users`)
-            .then(res => {
-                let usersArray = res.data.data[0].Users;
-                // for each user...
-                usersArray.forEach((user) => {
-                    // collect every created user in database
-                    allUsers.push(user.email);
-                    // look each associated doc if current logged in user is allowed
-                    user.docs.forEach((doc) => {
+
+    getDocs = async () => {
+        let usersArray = [];
+        let allUsers = [];
+        let allowedDocs = [];
+
+        console.log("call axios")
+        await axios({
+            url: `${server}/graphql/`,
+            method: 'post', // use post to get data
+            data: {
+                // if any key is not available in UsersType, error ERR_NAME_NOT_RESOLVED 
+                // query the following keys allowed in UsersType
+                query: `
+                {
+                    users {
+                        email
+                        docs {
+                            id
+                            title
+                            content
+                            allowed_users {
+                                email
+                            }
+                        }
+                    }
+                }
+                `
+            }
+        }).then((res) => {
+            usersArray = res.data.data.users; // array with { email:    and    docs: } 
+            
+            // for each user...
+            usersArray.forEach((user) => {
+                // collect every created user in database
+                allUsers.push(user.email);
+                // look each associated doc if current logged in user is allowed
+                user.docs.forEach((doc) => {
+                    // users allowed to edit (each user is an object with key 'email') of this doc
+                    doc.allowed_users.forEach((allowed_user) => {
+                        console.log("ALLOWED TO EDIT: ")
+                        console.log(allowed_user)
                         // if user is allowed for this doc, then push doc into allowedDocs array
-                        if (doc.allowed_users.includes(this.state.currentUser)) {
+                        if (allowed_user.email == this.state.currentUser) {
                             allowedDocs.push(doc)
                         }
                     })
                 })
             })
+        })
         await this.setState({ allowedDocs: allowedDocs })
         await this.setState({ allUsers: allUsers })
     }
+
+    // MOTSVARIGHET MED GET REQUEST
+    //     await axios.get(`${server}/users`)
+    //         .then(res => {
+    //             let usersArray = res.data.data[0].Users;
+    //             // for each user...
+    //             usersArray.forEach((user) => {
+    //                 // collect every created user in database
+    //                 allUsers.push(user.email);
+    //                 // look each associated doc if current logged in user is allowed
+    //                 user.docs.forEach((doc) => {
+    //                     // go through each allowed user of this doc
+    //                     doc.allowed_users.forEach((allowed_user) => {
+    //                         // if user is allowed for this doc, then push doc into allowedDocs array
+    //                         if (allowed_user.email == this.state.currentUser) {
+    //                             allowedDocs.push(doc)
+    //                         }
+    //                     })
+    //                 })
+    //             })
+    //         })
+    //     await this.setState({ allowedDocs: allowedDocs })
+    //     await this.setState({ allUsers: allUsers })
+    // }
+
+
+// ADJUSTED DB WHERE EACH ALLOWED USER NOW IS AN OBJECT
+// {
+// 	"_id": {
+// 		"$oid": "61631746cab3d5fde969ba7d"
+// 	},
+// 	"Users": [{
+// 		"email": "joki20@student.bth.se",
+// 		"password": "$2a$09$tihtbxPFSSFBOJ7mn20gyuAQYoweN81zVdM3z1odP44drKhgpbi76",
+// 		"docs": [{
+// 			"id": "616315285ebfcb13bacec332",
+// 			"title": "Den lille pige med svovlstikkerne",
+// 			"content": "<p>Der var engang en liten flikke</p><p><br></p><p>hej</p>",
+//             "allowed_users": [
+//                 {
+//                     "email": "joki20@student.bth.se"
+//                 },
+//                 {
+//                     "email": "abc@student.bth.se"
+//                 }
+//             ]
+// 		}]
+// 	}, {
+// 		"email": "abc@student.bth.se",
+// 		"password": "$2a$09$3mKfFqXD0lgLyOeBKFqk4uzknzu7rr3EzNU/.V9XCervJ7c0A8Mei",
+// 		"docs": []
+// 	}, {
+// 		"email": "johan@student.bth.se",
+// 		"password": "$2a$09$ik.zN7Egd7g2bKe4nj4GZu3BsrOA7I.Y.UnToHLKuJyunHHsl7Sfu",
+// 		"docs": []
+// 	}]
+// }
             
             
 
@@ -126,19 +224,27 @@ class App extends React.Component {
 
     clickTitle = async (e) => {
         let clickedTitle = e.target.innerHTML; // get title from click
+        let allowedUsers = [];
         let unallowedPersons = [];
         console.log("CLICKED TITLE")
         console.log(e)
         
         //await meaning finish this before next await
         await this.state.allowedDocs.forEach((doc) => {
+            // if match is found in db
             if (doc.title === clickedTitle) {
                 console.log(doc)
                 document.getElementsByClassName("titleInput")[0].value = doc.title;
                 // setState title and content
                 this.setState({ currentTitle: doc.title })
                 this.setState({ currentContent: doc.content })
-                this.setState({ allowedUsers: doc.allowed_users })
+
+                doc.allowed_users.forEach((allowed_user) => {
+                    allowedUsers.push(allowed_user.email);
+                })
+                console.log("RAD 150")
+                console.log(allowedUsers)
+                this.setState({ allowedUsers: allowedUsers }) // array with emails
                 this.setState({ clickedDocId: doc.id })
                 this.setState({ clickedDocOwner: doc.allowed_users[0] }) // first person in allowed_users always owns document
             }
@@ -174,7 +280,7 @@ class App extends React.Component {
             if (doc.title === titleInput) {
                 this.setState({ clickedDocId: doc.id });
                 // owner is always first in array_users
-                this.setState({ clickedDocOwner: doc.allowed_users[0] })
+                this.setState({ clickedDocOwner: doc.allowed_users[0].name })
 
                 this.setState({ messageStatus: "Title content updated" });
                 titleExists = "yes";
@@ -227,7 +333,6 @@ class App extends React.Component {
             .then(res => {
                 // get array of users
                 let usersArray = res.data.data[0].Users
-                console.log(usersArray)
                 // check if user exists
                 usersArray.forEach((user) => {
                     console.log(user.email)
