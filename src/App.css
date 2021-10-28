@@ -1,42 +1,128 @@
+body {
+  background-color: lightgoldenrodyellow;
+}
+
+h2 {
+  font-size: 1.5rem;
+}
+
+.LandingPage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: #ddd;
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  top: 0;
+  z-index: 1000;
+}
+
+.LandingPage .landingPageMessage {
+  font-size: 2rem;
+  position: fixed;
+  top: 10px;
+}
+
+.LandingPage label {
+  display: block;
+  font-size: 2rem;
+}
+
+.LandingPage input {
+  display: block;
+  border: 2px solid black;
+  border-radius: 10px;
+  padding: 1rem 1rem;
+  margin: 0 auto;
+  font-size: 2rem;
+  margin-bottom: 2rem;
+}
+
+.LandingPage input.login {
+  box-shadow: inset 0 0 25px rgba(0,0,0,.25);
+  font-weight: bold;
+  color: white;
+  background-color: #00B000;
+  cursor: pointer;
+}
+
+.LandingPage input.register {
+  box-shadow: inset 0 0 25px rgba(0,0,0,.25);
+  font-weight: bold;
+  color: white;
+  background-color: darkblue;
+  cursor: pointer;
+}
+
+/* login and register */
+.LandingPage div {
+  display: flex;
+}
+
 .App {
   text-align: center;
   display: grid;
+  margin-bottom: 2rem;
   /* stretch to full height of grid cell */
   /* align-items: stretch; */
-  grid-gap: 10px 20px;
+  grid-gap: 10px 10px;
   /* row fractions */
-  grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: 100px 120px 300px 200px;
+  grid-template-columns: 0.1fr 1fr 1fr 1fr 0.1fr;
+  grid-template-rows: 120px 40px 100px 150px 200px 170px;
   /* layout */
 
   grid-template-areas:
-    "tbar tbar tbar"
-    ". title ."
-    "listDocs editor listUsers"
-    "listDocs editor addUsers"
+    "tbar tbar tbar tbar tbar"
+    ". switchEditorBtn title executeOrPdf ."
+    ". listDocs activeEditor listUsers. "
+    ". listDocs activeEditor listUsers. "
+    ". comments activeEditor addUsers. "
+    ". comments saveBtn inviteUsers ."
 }
 
 /* placement */
 .Toolbar {
   grid-area: tbar;
-  background-color: lightgreen;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color:white;
   width: 100%;
   height: 100px;
+  border-bottom: 2px solid black;
 }
 
 .ListDocs {
   grid-area: listDocs;
-  background-color: lightyellow;
-  border: 2px solid black;
   height: 100%;
   padding: 0;
   margin: 0;
 }
 
+.Comments {
+  grid-area: comments;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+.Comments textarea {
+  border: 0;
+  outline: 0;
+  width: 90%;
+  height: 40%;
+  overflow: auto;
+  resize: none;
+  border: 1px solid black;
+  border-radius: 10px;
+  margin-top: 10px;
+}
+
 .ListUsers {
   grid-area: listUsers;
-  background-color: lightpink;
-  border: 2px solid black;
   height: 100%;
   padding: 0;
   margin: 0;
@@ -44,49 +130,145 @@
 
 .AddUsers {
   grid-area: addUsers;
-  background-color: lightgrey;
-  border: 2px solid black;
   height: 100%;
   padding: 0;
   margin: 0;
 }
 
-.Title {
-  grid-area: title;
-}
-
-.Quill {
-  grid-area: editor;
-  border: 2px solid black;
+.InviteUsers {
+  grid-area: inviteUsers;
+  display: block;
+  background-color: lightcyan;
   height: 100%;
   padding: 0;
+  margin: 0;
 }
 
-.AuthForm form {
-  display: flex;
-  flex-flow: row wrap;
-  align-items: center;
+.InviteUsers button {
+  display: block;
+  margin: 0 auto;
 }
 
-/* Add some margins for each label */
-.AuthForm label {
-  margin: 5px 10px 5px 0;
+.Title {
+  grid-area: title;
+  width: 100%;
 }
 
-/* Style the input fields */
-.AuthForm input {
-  vertical-align: middle;
-  margin: 5px 10px 5px 0;
-  padding: 10px;
-  background-color: #fff;
+.Quill, .react-codemirror2 {
+  grid-area: activeEditor;
+}
+
+.ListDocs,
+.Comments,
+.ListUsers,
+.AddUsers,
+.InviteUsers,
+.Title input,
+.inputInvitation,
+.Quill,
+.react-codemirror2,
+.SwitchEditorBtn,
+.ExecuteCodeBtn,
+.PdfBtn,
+.SaveBtn {
   border: 2px solid black;
-  border-radius: 5px;
-}
-
-.AuthForm .login, .AuthForm .register {
+  border-radius: 10px;
   background-color: white;
-  border-radius: 5px;
+}
+
+
+.Quill {
+  height: 100%;
+  padding: 0;
+  overflow: hidden;
+}
+
+.SwitchEditorBtn {
+  grid-area: switchEditorBtn;
+  background-color: darkblue;
+}
+
+.ExecuteCodeBtn, .PdfBtn {
+  grid-area: executeOrPdf;
+  width: 100%;
+  padding: 0.5rem;
+  letter-spacing: 0.2rem;
+  font-size: 1.5rem;
+}
+
+.ExecuteCodeBtn, .PdfBtn {
+  background: red;
+}
+
+.SaveBtn {
+  grid-area: saveBtn;
+  background: #00B000;
+}
+
+.ExecuteCodeBtn,
+.PdfBtn,
+.SaveBtn,
+.SwitchEditorBtn,
+.Comments button {
+  width: 100%;
+  font-size: 1.5rem;
+  text-align: center;
+  box-shadow: inset 0 0 25px rgba(0,0,0,.25);
+  font-weight: bold;
+  color: white;
+  line-height: 1;
+  letter-spacing: 0.2rem;
+  padding: 0.5rem;
+  display: block;
+  margin: 0 auto;
+  cursor: pointer;
+}
+
+.Comments button {
+  max-width: 50%;
+  font-size: 1rem;
+  color: black;
+  border-radius: 10px;
   border: 2px solid black;
+  margin-top: 20px;
+}
+
+.InviteBtn {
+  background-color: transparent;
+  border: 0;
+  font-size: 2rem;
+  cursor: pointer;
+}
+
+.inputInvitation {
+  width: 80%;
+  padding: 0.5rem;
+  display: block;
+  margin: 0 auto;
+}
+
+.react-codemirror2 {
+  text-align: left;
+  background-color:#263238;
+}
+
+.cm-variable {
+  padding-left: 30px;
+}
+
+.CodeMirror-cursor {
+  text-align: right;
+}
+
+.hideEditor {
+  display: none;
+}
+
+.hidden {
+  visibility: hidden;
+}
+.visible {
+  visibility: visible;
 }
 
 .Title {
@@ -95,30 +277,38 @@
 
 .Title input {
   text-align: center;
-  width: 95%;
-  margin: 5px 10px 10px 0;
-  border: 2px solid black;
+  width: 93%;
+  margin: 0;
   border-radius: 5px;
   padding: 10px;
 }
 
-.Toolbar button {
+.Toolbar .user {
   display: block;
-  vertical-align: middle;
-  margin: 5px 10px 5px 0;
+  position: relative;
+  background-color: black;
+  color: #ddd;
+  padding: 0.5rem;
+  width: 100%;
+}
+
+.clickedStatus {
+  background-color: white;
+  height: 1.5rem;
+}
+
+.Toolbar button {
+  right: 10px;
+  top: 10px;
+  background-color: white;
+  font-weight: bold;
   padding: 10px;
   border-radius: 5px;
-  background-color: #ddd;
-  float: right;
 }
 
 li {
   cursor: pointer;
-}
-
-ul {
-  margin: 0;
-  text-align: left
+  list-style-type: none;
 }
 
 .App-logo {

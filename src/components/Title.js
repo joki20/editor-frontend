@@ -4,8 +4,7 @@ import React from "react";
 const Title = (props) => {
     return (
         <div className="Title">
-            <h2>Title</h2>
-            <input className="titleInput" aria-label="inputLable"></input>
+            <input className="titleInput" aria-label="inputLable" value={props.currentTitle}></input>
         </div>
 
     )
