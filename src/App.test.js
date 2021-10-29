@@ -14,6 +14,8 @@ import { render, waitFor, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import userEvent from '@testing-library/user-event'
 import App from "./App.js";
+import FileSaver from 'file-saver';
+jest.mock('file-saver', ()=>({saveAs: jest.fn()}))
 
 import { unmountComponentAtNode } from "react-dom";
 
@@ -25,14 +27,42 @@ test('Click title and display its corresponding text content on the screen', asy
   await render(<App />);
   
   // get element containing text
-  await screen.findByText(/Nintendo gör det igen/i)
+  await screen.findByText(/Login/i)
   // click element
-  var clickableTitle = screen.getByText(/Nintendo gör det igen/i);
+  var clickableTitle = screen.getByText(/Login/i);
   await userEvent.click(clickableTitle);
   // expect element containing the following text
-  expect(screen.getByText(/Super Mario utsett till tidernas spel/i)).toBeInTheDocument()
+  expect(screen.getByText(/joki20@student.bth.se is logged in/i)).toBeInTheDocument()
 });
 
+
+test('Download PDF', async () => {
+  await render(<App />);
+
+  jest.mock('file-saver', () => ({ saveAs: jest.fn() }))
+  
+  global.Blob = function (content, options){return  ({content, options})}
+  
+  // get element containing text
+  await screen.findByText(/Login/i)
+  // click element
+  var clickableTitle = screen.getByText(/Login/i);
+  await userEvent.click(clickableTitle);
+  // expect element containing the following text
+  await screen.findByText(/Create PDF/i)
+
+  var downloadPDFButton = screen.getByText(/Create PDF/i);
+
+      const link = {
+        click: jest.fn()
+      };
+  jest.spyOn(document, "createElement").mockImplementation(() => link);
+  
+  await userEvent.click(downloadPDFButton);
+  
+  expect(link.download).toEqual("myfile.pdf");
+  
+});
 
 test('Saving existing title will display Title content updated', async () => {
 await render(<App />);
@@ -47,6 +77,12 @@ await render(<App />);
   await userEvent.click(document.getElementsByTagName("button")[0])
   // expect element containing the following text
   expect(screen.getByText(/Title content updated/i)).toBeInTheDocument()
+
+  createDownload('content', 'filename', 'extension')
+expect(FileSaver.saveAs).toHaveBeenCalledWith(
+  {content:'content', options: { type: 'application/octet-stream' }}, 
+  'filename.extension'
+)
 });
 
 

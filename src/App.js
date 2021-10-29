@@ -14,8 +14,8 @@ import './App.css';
 import 'react-quill/dist/quill.bubble.css';
 // io is a function to call an individual socket
 import io from "socket.io-client";
-import PdfBtn from "./components/PdfBtn.js";
 // KRAV 1: SKAPA PDF
+import PdfBtn from "./components/PdfBtn.js";
 import html2pdf from 'html2pdf.js';
 // KRAV 2: KOD-KOMMENTARER
 import Comments from "./components/Comments.js";
@@ -31,7 +31,7 @@ import ExecuteCodeBtn from "./components/ExecuteCodeBtn.js";
 
 // let server = `http://localhost:1337`;
 let server = `https://jsramverk-editor-joki20.azurewebsites.net`
-const socket = io("http://student.bth.se"); // http://localhost:3000
+const socket = io(server); // http://localhost:3000
 
 var htmlRowsArray;
 var htmlCollection;
@@ -600,15 +600,16 @@ class App extends React.Component {
         
         quill.classList.toggle("hideEditor");
         codemirror.classList.toggle("hideEditor");
-
-        this.state.type === "document" ? await this.setState({ type: "code"}) : await this.setState({ type: "document"})
-
+        // from pdf button to code button
         if (this.state.type === "document") {
-            executeBtn.classList.remove("visible");
+            this.setState({ type: "code" })
+            document.getElementsByClassName("ExecuteCodeBtn")[0].classList.remove("hidden");
             pdfBtn.classList.add("hidden");
         }
+        // from code button to pdf button
         if (this.state.type === "code") {
-            executeBtn.classList.add("visible");
+            this.setState({ type: "document" })
+            document.getElementsByClassName("ExecuteCodeBtn")[0].classList.add("visible");
             pdfBtn.classList.remove("hidden");
         }
     }
@@ -629,7 +630,8 @@ class App extends React.Component {
             await axios.post(`https://execjs.emilfolino.se/code`, {
                 code: base64String,
             }).then((res) => {
-                console.log(res);
+                // display returned message
+                this.setState({ messageStatus: res.data.data })
             })
         }
     }
