@@ -345,7 +345,9 @@ class App extends React.Component {
                     // show normal editor
                     quill.classList.remove("hideEditor");
                     codemirror.classList.add("hideEditor");
-
+                    executeBtn.classList.add("hidden");
+                    pdfBtn.classList.remove("hidden");
+                    
                     // empty content, since clicking on title will append <p> rows
                     document.getElementsByClassName("ql-editor")[0].innerHTML = '';
                     // this.setState({ currentContent: doc.content })
@@ -372,6 +374,8 @@ class App extends React.Component {
                     // show codemirror editor
                     quill.classList.add("hideEditor");
                     codemirror.classList.remove("hideEditor");
+                    executeBtn.classList.remove("hidden");
+                    pdfBtn.classList.add("hidden");
 
                     // add content to doc
                     document.querySelector('.CodeMirror').CodeMirror.setValue(doc.content)
@@ -396,15 +400,6 @@ class App extends React.Component {
         // SHOW save button
         document.getElementsByClassName("SaveBtn")[0].classList.remove("hidden");
         // SHOW correct button: 'Create PDF' or 'Execute Code'
-        
-        if (this.state.type === "document") {
-            executeBtn.classList.remove("visible");
-            pdfBtn.classList.add("hidden");
-        }
-        if (this.state.type === "code") {
-            executeBtn.classList.add("visible");
-            pdfBtn.classList.remove("hidden");
-        }
     }
 
     
